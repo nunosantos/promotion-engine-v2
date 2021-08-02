@@ -20,38 +20,51 @@ namespace Application.Strategies
 
         public int CalculateTotal()
         {
+            if (promotion.Active) return 0;
+
             var applicableIDs = promotion.ApplicableIDs;
 
-            if (!promotion.Active)
-            {
-                var orderItems = order.OrderItems.Where(i => applicableIDs.Contains(i.Id)).ToList();
+            var orderItems = order.OrderItems
+                                            .Where(i => applicableIDs.Contains(i.Id))
+                                            .OrderBy(o => o.OrderedAmount)
+                                            .ToList();
 
-                var minimumOrderItemAmount = orderItems.Min(o => o.OrderedAmount);
+            var highestOrderedItem = orderItems.Aggregate((previous, next) =>
+                previous.OrderedAmount > next.OrderedAmount ? previous : next);
 
-                var maximumOrderItemAmount = orderItems.Max(o => o.OrderedAmount);
+            var matchedProduct = products.FirstOrDefault(p => p.Id == highestOrderedItem.Id);
 
-                var highestOrderedItem = orderItems.Aggregate((previous, next) =>
-                    previous.OrderedAmount > next.OrderedAmount ? previous : next);
+            var orderContainsMultipleItems = orderItems.Count > 1;
 
-                var matchedProduct = products.FirstOrDefault(p => p.Id == highestOrderedItem.Id);
+            if (orderContainsMultipleItems)
+                return SelectApplicablePromotionPrice(orderItems.First(), orderItems.Last(), matchedProduct);
 
-                if (orderItems.Count > 1)
-                {
-                    if (maximumOrderItemAmount == minimumOrderItemAmount)
-                    {
-                        promotion.Active = true;
-                        return promotion.DiscountedPrice * minimumOrderItemAmount;
-                    }
-
-                    return (promotion.DiscountedPrice * minimumOrderItemAmount) +
-                           matchedProduct.UnitPrice * (maximumOrderItemAmount - minimumOrderItemAmount);
-                }
-
-                if (matchedProduct != null)
-                    return highestOrderedItem.OrderedAmount * matchedProduct.UnitPrice;
-            }
+            if (matchedProduct != null)
+                return highestOrderedItem.OrderedAmount * matchedProduct.UnitPrice;
 
             return 0;
+        }
+
+        private int SelectApplicablePromotionPrice(OrderItem orderItemWithHighestAmount, OrderItem orderItemWithLowestAmount, Product? matchedProduct)
+        {
+            var itemsHaveEquallyOrderedAmounts = orderItemWithHighestAmount.OrderedAmount == orderItemWithLowestAmount.OrderedAmount;
+
+            return itemsHaveEquallyOrderedAmounts
+                ? CalculatePromotionPrice(orderItemWithLowestAmount)
+                : CalculateDefaultPrice(orderItemWithLowestAmount, orderItemWithHighestAmount, matchedProduct);
+        }
+
+
+        private int CalculateDefaultPrice(OrderItem orderItemWithHighestAmount, OrderItem orderItemWithLowestAmount, Product? matchedProduct)
+        {
+            return (promotion.DiscountedPrice * orderItemWithLowestAmount.OrderedAmount) +
+                   matchedProduct.UnitPrice * (orderItemWithHighestAmount.OrderedAmount - orderItemWithLowestAmount.OrderedAmount);
+        }
+
+        private int CalculatePromotionPrice(OrderItem orderItemWithLowestAmount)
+        {
+            promotion.Active = true;
+            return promotion.DiscountedPrice * orderItemWithLowestAmount.OrderedAmount;
         }
     }
 }
