@@ -1,0 +1,32 @@
+﻿using Domain.Orders;
+using System.Collections.Generic;
+
+namespace Application.Stubs
+{
+    public class Promotions
+    {
+        public static IEnumerable<Promotion> GetPromotions()
+        {
+            yield return new Promotion()
+            {
+                PriceTrigger = 3,
+                DiscountedPrice = 130,
+                Id = "A",
+                ApplicableIDs = new string[] { "A" }
+            };
+            yield return new Promotion()
+            {
+                PriceTrigger = 2,
+                DiscountedPrice = 45,
+                Id = "B",
+                ApplicableIDs = new string[] { "B" }
+            };
+            yield return new Promotion()
+            {
+                DiscountedPrice = 30,
+                Id = "CD",
+                ApplicableIDs = new string[] { "C", "D" }
+            };
+        }
+    }
+}
