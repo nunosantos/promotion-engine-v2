@@ -20,36 +20,37 @@ namespace Application.Strategies
 
         public int CalculateTotal()
         {
+            if (promotion.Active) return 0;
+
             var applicableIDs = promotion.ApplicableIDs;
 
-            if (!promotion.Active)
+            var orderItems = order.OrderItems.Where(i => applicableIDs.Contains(i.Id)).ToList();
+
+            var minimumOrderItemAmount = orderItems.Min(o => o.OrderedAmount);
+
+            var maximumOrderItemAmount = orderItems.Max(o => o.OrderedAmount);
+
+            var highestOrderedItem = orderItems.Aggregate((previous, next) =>
+                previous.OrderedAmount > next.OrderedAmount ? previous : next);
+
+            var matchedProduct = products.FirstOrDefault(p => p.Id == highestOrderedItem.Id);
+
+            var orderContainsMultipleItems = orderItems.Count > 1;
+            if (orderContainsMultipleItems)
             {
-                var orderItems = order.OrderItems.Where(i => applicableIDs.Contains(i.Id)).ToList();
-
-                var minimumOrderItemAmount = orderItems.Min(o => o.OrderedAmount);
-
-                var maximumOrderItemAmount = orderItems.Max(o => o.OrderedAmount);
-
-                var highestOrderedItem = orderItems.Aggregate((previous, next) =>
-                    previous.OrderedAmount > next.OrderedAmount ? previous : next);
-
-                var matchedProduct = products.FirstOrDefault(p => p.Id == highestOrderedItem.Id);
-
-                if (orderItems.Count > 1)
+                var itemsHaveEquallyOrderedAmounts = maximumOrderItemAmount == minimumOrderItemAmount;
+                if (itemsHaveEquallyOrderedAmounts)
                 {
-                    if (maximumOrderItemAmount == minimumOrderItemAmount)
-                    {
-                        promotion.Active = true;
-                        return promotion.DiscountedPrice * minimumOrderItemAmount;
-                    }
-
-                    return (promotion.DiscountedPrice * minimumOrderItemAmount) +
-                           matchedProduct.UnitPrice * (maximumOrderItemAmount - minimumOrderItemAmount);
+                    promotion.Active = true;
+                    return promotion.DiscountedPrice * minimumOrderItemAmount;
                 }
 
-                if (matchedProduct != null)
-                    return highestOrderedItem.OrderedAmount * matchedProduct.UnitPrice;
+                return (promotion.DiscountedPrice * minimumOrderItemAmount) +
+                       matchedProduct.UnitPrice * (maximumOrderItemAmount - minimumOrderItemAmount);
             }
+
+            if (matchedProduct != null)
+                return highestOrderedItem.OrderedAmount * matchedProduct.UnitPrice;
 
             return 0;
         }
