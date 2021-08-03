@@ -19,10 +19,12 @@ namespace Unit_tests.Strategies
 
             var promotion = Promotions.GetPromotions().FirstOrDefault(p => p.ApplicableIDs.Contains(orderItemId));
 
-            var products = new List<Product>
+            var productItem = new List<Product>
             {
                 new() {Id = "A", UnitPrice = 50}
             };
+
+            var products = new Products() { ProductList = productItem.ToArray() };
 
             var order = new Order()
             {

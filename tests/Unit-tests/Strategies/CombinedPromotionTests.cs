@@ -26,13 +26,15 @@ namespace Unit_tests.Strategies
 
             var promotion = Promotions.GetPromotions().FirstOrDefault(p => p.ApplicableIDs.Contains(orderItemId));
 
-            var items = new List<Product>
+            var productItems = new List<Product>
             {
                 new() {Id = "A", UnitPrice = 50},
                 new() {Id = "B", UnitPrice = 30},
                 new() {Id = "C", UnitPrice = 20},
                 new() {Id = "D", UnitPrice = 15},
             };
+
+            var products = new Products { ProductList = productItems.ToArray() };
 
             var order = new Order()
             {
@@ -43,7 +45,7 @@ namespace Unit_tests.Strategies
                 }
             };
 
-            var strategy = new CombinedPromotionStrategy(promotion, order, items);
+            var strategy = new CombinedPromotionStrategy(promotion, order, products);
             var total = strategy.CalculateTotal();
 
             total.Should().Be(30);
@@ -64,6 +66,8 @@ namespace Unit_tests.Strategies
                 new() {Id = "D", UnitPrice = 15},
             };
 
+            var products = new Products() { ProductList = items.ToArray() };
+
             var order = new Order()
             {
                 OrderItems = new List<OrderItem>()
@@ -73,7 +77,7 @@ namespace Unit_tests.Strategies
                 }
             };
 
-            var strategy = new CombinedPromotionStrategy(promotion, order, items);
+            var strategy = new CombinedPromotionStrategy(promotion, order, products);
             var total = strategy.CalculateTotal();
 
             total.Should().Be(60);
@@ -86,13 +90,15 @@ namespace Unit_tests.Strategies
 
             var promotion = Promotions.GetPromotions().FirstOrDefault(p => p.ApplicableIDs.Contains(orderItemId));
 
-            var items = new List<Product>
+            var productItems = new List<Product>
             {
                 new() {Id = "A", UnitPrice = 50},
                 new() {Id = "B", UnitPrice = 30},
                 new() {Id = "C", UnitPrice = 20},
                 new() {Id = "D", UnitPrice = 15},
             };
+
+            var products = new Products {ProductList = productItems.ToArray()};
 
             var order = new Order()
             {
@@ -103,7 +109,7 @@ namespace Unit_tests.Strategies
                 }
             };
 
-            var strategy = new CombinedPromotionStrategy(promotion, order, items);
+            var strategy = new CombinedPromotionStrategy(promotion, order, products);
             var total = strategy.CalculateTotal();
 
             total.Should().Be(45);
