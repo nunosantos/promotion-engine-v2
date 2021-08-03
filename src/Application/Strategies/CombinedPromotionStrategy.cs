@@ -1,6 +1,5 @@
 ﻿using Application.Interfaces;
 using Domain.Orders;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Application.Strategies
@@ -9,9 +8,9 @@ namespace Application.Strategies
     {
         private readonly Promotion promotion;
         private readonly Order order;
-        private readonly IEnumerable<Product> products;
+        private readonly Products products;
 
-        public CombinedPromotionStrategy(Promotion promotion, Order order, IEnumerable<Product> products)
+        public CombinedPromotionStrategy(Promotion promotion, Order order, Products products)
         {
             this.promotion = promotion;
             this.order = order;
@@ -32,7 +31,7 @@ namespace Application.Strategies
             var highestOrderedItem = orderItems.Aggregate((previous, next) =>
                 previous.OrderedAmount > next.OrderedAmount ? previous : next);
 
-            var matchedProduct = products.FirstOrDefault(p => p.Id == highestOrderedItem.Id);
+            var matchedProduct = products.ProductList.FirstOrDefault(p => p.Id == highestOrderedItem.Id);
 
             var orderContainsMultipleItems = orderItems.Count > 1;
 

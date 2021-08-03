@@ -1,6 +1,5 @@
 ﻿using Application.Interfaces;
 using Domain.Orders;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Application.Strategies
@@ -9,9 +8,9 @@ namespace Application.Strategies
     {
         private readonly Order order;
         private readonly string skuId;
-        private readonly IEnumerable<Product> products;
+        private readonly Products products;
 
-        public PromotionNotActiveStrategy(Order order, string skuId, IEnumerable<Product> products)
+        public PromotionNotActiveStrategy(Order order, string skuId, Products products)
         {
             this.order = order;
             this.skuId = skuId;
@@ -20,7 +19,7 @@ namespace Application.Strategies
 
         public int CalculateTotal()
         {
-            var product = products.FirstOrDefault(i => i.Id == skuId);
+            var product = products.ProductList.FirstOrDefault(i => i.Id == skuId);
 
             var orderItem = order.OrderItems.FirstOrDefault(i => i.Id == skuId);
 

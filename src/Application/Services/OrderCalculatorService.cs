@@ -23,7 +23,10 @@ namespace Application.Services
             var total = 0;
             var promotionCalculator = new PromotionCalculationContext();
             var promotions = Promotions.GetPromotions().ToList();
-            var products = _promotionRepository.Get();
+            var products = new Products()
+            {
+                ProductList = _promotionRepository.Get().ToArray()
+            };
 
             foreach (var orderItem in order.OrderItems)
             {
@@ -32,7 +35,7 @@ namespace Application.Services
                 switch (promotion?.ApplicableIDs.Length)
                 {
                     case 1:
-                        promotionCalculator.SetPromotionStrategy(new IndividualPromotionStrategy(promotions.FirstOrDefault(i => i.Id == orderItem.Id), order, orderItem.Id, products));
+                        promotionCalculator.SetPromotionStrategy(new IndividualPromotionStrategy(promotion, order, orderItem.Id, products));
                         total += promotionCalculator.CalculateTotal();
                         break;
 

@@ -1,7 +1,6 @@
 ﻿using Application.Interfaces;
 using Domain.Orders;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Application.Strategies
@@ -11,9 +10,9 @@ namespace Application.Strategies
         private readonly Promotion promotion;
         private readonly Order order;
         private readonly string skuId;
-        private readonly IEnumerable<Product> products;
+        private readonly Products products;
 
-        public IndividualPromotionStrategy(Promotion promotion, Order order, string skuId, IEnumerable<Product> products)
+        public IndividualPromotionStrategy(Promotion promotion, Order order, string skuId, Products products)
         {
             this.promotion = promotion;
             this.order = order;
@@ -35,7 +34,7 @@ namespace Application.Strategies
 
             var matchedOrderItem = order.OrderItems.FirstOrDefault(i => i.Id == skuId);
 
-            var matchedProduct = products.FirstOrDefault(p => p.Id == skuId);
+            var matchedProduct = products.ProductList.FirstOrDefault(p => p.Id == skuId);
 
             if (matchedOrderItem?.OrderedAmount < promotion.PriceTrigger && matchedProduct != null) return matchedOrderItem.OrderedAmount * matchedProduct.UnitPrice;
             {
