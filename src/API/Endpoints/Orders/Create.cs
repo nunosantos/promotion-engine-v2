@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace API.Endpoints.Orders
 {
-    public class Create : BaseAsyncEndpoint.WithRequest<CreateOrderCommand>.WithoutResponse
+    public class Create : AsynchronousEndpoint.WithRequestType<CreateOrderCommand>.WithoutResponseBody
     {
         private readonly IRepository repository;
 

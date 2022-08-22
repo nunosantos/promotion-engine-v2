@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace API.Endpoints.Items
 {
-    public class Create : BaseAsyncEndpoint.WithRequest<CreateItemCommand>.WithoutResponse
+    public class Create : AsynchronousEndpoint.WithRequestType<CreateItemCommand>.WithoutResponseBody
     {
         private readonly IRepository repository;
 
@@ -33,14 +33,11 @@ namespace API.Endpoints.Items
         {
             try
             {
-                if (request is null)
-                {
-                    BadRequest();
-                }
+                if (request is null) BadRequest();
 
-                var item = RepositoryMapper.MapItem(request);
+                var productItem = RepositoryMapper.MapProductItem(request);
 
-                repository.Add(item);
+                repository.Add(productItem);
 
                 return Created("items", request);
             }

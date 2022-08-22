@@ -7,7 +7,7 @@ namespace API.Endpoints.Items
 {
     public class RepositoryMapper
     {
-        public static IEnumerable<Product> MapItem(CreateItemCommand request)
+        public static IEnumerable<Product> MapProductItem(CreateItemCommand request)
         {
             return request
                         .Items

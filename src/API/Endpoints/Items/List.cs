@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace API.Endpoints.Items
 {
-    public class List : BaseAsyncEndpoint.WithoutRequest.WithResponse<ListItemResult>
+    public class List : AsynchronousEndpoint.WithoutRequestBody.WithResponseType<ListItemResult>
     {
         private readonly IRepository _repository;
 
@@ -34,14 +34,11 @@ namespace API.Endpoints.Items
         {
             try
             {
-                var items = _repository.Get().ToArray();
+                var productItems = _repository.Get().ToArray();
 
-                if (!items.Any())
-                {
-                    return NoContent();
-                }
+                if (!productItems.Any()) return NoContent();
 
-                return Ok(new ListItemResult() { Items = items });
+                return Ok(new ListItemResult() { Items = productItems });
             }
             catch (Exception e)
             {
